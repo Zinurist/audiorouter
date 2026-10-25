@@ -237,6 +237,7 @@ show_tray = true
 
 - `audiorouter`: open the window. If an instance is already running, its window is opened instead.
 - `audiorouter --background` (`-b`): no window. Apply the setup and keep it applied. Used by autostart; enable it with "Start at Login" in the app menu.
+- `audiorouter --version` (`-v`): print `audiorouter X.Y` (handled locally, never forwarded to a running instance).
 - Debug environment variables:
   - `AUDIOROUTER_SETUP=<file>`: use a different setup file.
   - `AUDIOROUTER_FIXTURE=<pw-dump.json>`: run offline on a `pw-dump` snapshot; commands are only logged.
@@ -247,7 +248,6 @@ show_tray = true
 ## Build, install and test
 
 - `README.md` is the short user-facing description (what it does, screenshot, build). Keep it short and keep the vibe-coding disclaimer. `docs/screenshot.png` is taken with `AUDIOROUTER_SCREENSHOT` on the test fixture plus a demo setup, never on a real system.
-
 - System packages (Fedora names): `gtk4-devel`, `libadwaita-devel`, `pipewire-devel`, `clang-devel`. Debian/Ubuntu: `libgtk-4-dev`, `libadwaita-1-dev`, `libpipewire-0.3-dev`, `libclang-dev`.
 - `cargo build`, `cargo test`, `cargo clippy`, `cargo fmt` (`rustfmt.toml`: width 140).
 - Icons live in `data/`: `io.github.audiorouter.AudioRouter.svg` (128 px app icon: waveform source routed to two outputs on a dark tile) and `…-symbolic.svg` (16 px, **filled shapes only**, because symbolic recoloring replaces fills and would turn stroked lines into blobs). Both are embedded with `include_str!`; the window uses the app icon by name (`set_default_icon_name`) after adding the cache dir to GTK's icon search path.
@@ -264,3 +264,14 @@ show_tray = true
     AUDIOROUTER_DEBUG=1 AUDIOROUTER_SETUP=/tmp/<short>/setup.toml audiorouter --background
     ```
   - In that private instance there is no session manager, so loopback ports never appear and links through loopbacks cannot be tested there (loopback creation and its properties can).
+
+## CI, releases and versioning
+
+- **Versioning:** two numbers, `X.Y` (tags and releases `vX.Y`). Cargo needs three, so `Cargo.toml` says `X.Y.0` (patch always 0); `--version` prints `X.Y`. `scripts/set-version.sh X.Y` updates `Cargo.toml` and `Cargo.lock`.
+- **Releasing:** run `scripts/set-version.sh X.Y` and commit, tag `vX.Y` on `main`, push the tag, then review and publish the **draft** release by hand.
+- **`.github/workflows/ci.yml`** (push to `main`, PRs, manual): `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`.
+- **`.github/workflows/build.yml`** (reusable or manual): release build, packaged as `audiorouter-<label>-x86_64-linux.tar.gz` (binary, `audiorouter.svg`, README), uploaded as artifact `dist`.
+- **`.github/workflows/release.yml`** (tag `vX.Y`, or manual for a dry run): checks that the tag is `vX.Y` and matches `Cargo.toml`, runs `build.yml` with label `X.Y`, then creates a draft release. Its notes are `.github/RELEASE_DISCLAIMER.md` followed by GitHub's generated changelog since the previous `vX.Y` tag.
+- All jobs run in a **`fedora:43` container**: Ubuntu runners' libadwaita is older than 1.6. The release binary therefore needs glibc 2.42+ (Fedora 43 or newer, or a similarly recent distribution).
+- The disclaimer exists twice, in `.github/RELEASE_DISCLAIMER.md` and in the README. Keep them in sync.
+- Workflows can be linted with `actionlint` (e.g. `podman run --rm -v "$PWD":/repo:Z -w /repo docker.io/rhysd/actionlint`).

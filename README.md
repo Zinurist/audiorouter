@@ -28,6 +28,11 @@ re-applied at login and kept applied when devices are unplugged, renamed or repl
 PipeWire with WirePlumber and pipewire-pulse (`pactl`), GTK 4.14+ and libadwaita 1.6+.
 EasyEffects is optional.
 
+## Download
+
+Releases have a prebuilt x86_64 binary (`audiorouter-X.Y-x86_64-linux.tar.gz`, built on Fedora 43;
+needs a similarly recent distribution). Unpack it and run `audiorouter`.
+
 ## Build
 
 Needs a Rust toolchain ([rustup](https://rustup.rs)) and the development packages:

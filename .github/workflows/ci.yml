@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Format, lint, test
+    runs-on: ubuntu-24.04
+    # Ubuntu's libadwaita is too old (the app needs 1.6+), so build in a Fedora container.
+    container: fedora:43
+    steps:
+      - name: Install build dependencies
+        run: dnf install -y --setopt=install_weak_deps=False git tar zstd gcc cargo rustfmt clippy gtk4-devel libadwaita-devel pipewire-devel clang-devel
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --locked -- -D warnings
+      - run: cargo test --locked

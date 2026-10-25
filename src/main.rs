@@ -35,6 +35,11 @@ thread_local! {
     static SETTINGS: RefCell<Settings> = RefCell::new(Settings::load());
 }
 
+/// The app version `X.Y`. Cargo needs three numbers, so Cargo.toml says `X.Y.0`.
+fn version() -> &'static str {
+    env!("CARGO_PKG_VERSION").strip_suffix(".0").unwrap_or(env!("CARGO_PKG_VERSION"))
+}
+
 fn engine() -> EngineRef {
     ENGINE.with(|e| e.get_or_init(Engine::start).clone())
 }
@@ -219,6 +224,15 @@ fn main() -> glib::ExitCode {
         "Run without a window and keep the saved setup applied (used for autostart)",
         None,
     );
+    app.add_main_option("version", glib::Char::from(b'v'), glib::OptionFlags::NONE, glib::OptionArg::None, "Print the version", None);
+    // Handled locally, so it works without (and does not talk to) a running instance.
+    app.connect_handle_local_options(|_, opts| {
+        if opts.contains("version") {
+            println!("audiorouter {}", version());
+            return std::ops::ControlFlow::Break(glib::ExitCode::SUCCESS);
+        }
+        std::ops::ControlFlow::Continue(())
+    });
 
     app.connect_startup(|app| {
         adw::StyleManager::default().set_color_scheme(adw::ColorScheme::ForceDark);

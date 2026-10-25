@@ -1,0 +1,53 @@
+name: Build
+
+# Reusable: builds the release binary and uploads it as the artifact `dist`.
+# Used by release.yml; can also be started manually.
+on:
+  workflow_call:
+    inputs:
+      label:
+        description: Version label used in file names (e.g. 0.1 or dev-<sha>)
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      label:
+        description: Version label used in file names
+        required: true
+        default: dev
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build (x86_64 Linux)
+    runs-on: ubuntu-24.04
+    # Fedora 43 has libadwaita 1.8; its glibc (2.42) is the oldest the binary runs with.
+    container: fedora:43
+    env:
+      LABEL: ${{ inputs.label }}
+    steps:
+      - name: Install build dependencies
+        run: dnf install -y --setopt=install_weak_deps=False git tar zstd gzip gcc cargo gtk4-devel libadwaita-devel pipewire-devel clang-devel
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release
+      - run: cargo build --release --locked
+      - name: Package
+        run: |
+          name="audiorouter-$LABEL-x86_64-linux"
+          mkdir -p "dist/$name"
+          cp target/release/audiorouter "dist/$name/"
+          cp data/io.github.audiorouter.AudioRouter.svg "dist/$name/audiorouter.svg"
+          cp README.md "dist/$name/"
+          tar -czf "dist/$name.tar.gz" -C dist "$name"
+          rm -r "dist/$name"
+          ls -l dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*
+          retention-days: 7
