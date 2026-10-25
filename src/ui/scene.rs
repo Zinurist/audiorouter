@@ -196,9 +196,7 @@ impl Scene {
                 lines.push(("Processes all app audio".into(), LineStyle::Dim));
             }
             let mut badge = n.selector.kind.short().to_string();
-            if n.selector.role.as_deref().is_some_and(|r| r.starts_with("loopback:")) {
-                badge = "loopback".into();
-            } else if n.selector.role.as_deref().is_some_and(|r| r.starts_with("easyeffects:")) {
+            if n.selector.role.as_deref().is_some_and(|r| r.starts_with("easyeffects:")) {
                 badge = "effects".into();
             }
             if matches.len() > 1 {
@@ -222,7 +220,7 @@ impl Scene {
         // Live units that are not in the setup.
         auto_pos.retain(|k, _| a.units.list.iter().any(|u| &u.key == k));
         for (i, u) in a.units.list.iter().enumerate() {
-            if a.managed_units.contains(&i) {
+            if a.managed_units.contains(&i) || a.hidden_units.contains(&i) {
                 continue;
             }
             let mut lines = vec![];
@@ -350,12 +348,12 @@ impl Palette {
     pub fn new(dark: bool) -> Palette {
         if dark {
             Palette {
-                bg: hex(0x1e1e1e),
-                grid: hex(0x2a2a2a),
-                card: hex(0x303030),
-                card_border: hex(0x4a4a4a),
-                text: hex(0xffffff),
-                dim: hex(0x9a9996),
+                bg: hex(0x1d1d20),
+                grid: hex(0x27272b),
+                card: hex(0x2e2e32),
+                card_border: hex(0x48484f),
+                text: hex(0xf2f2f4),
+                dim: hex(0x9a9aa1),
                 accent: hex(0x78aeed),
                 ok: hex(0x57e389),
                 warn: hex(0xf8e45c),
@@ -429,19 +427,55 @@ pub struct Overlay {
     pub phase: f64,
 }
 
-pub fn draw(cr: &cairo::Context, scene: &Scene, pal: &Palette, ov: &Overlay, width: f64, height: f64) {
+/// Pan and zoom of the canvas: screen = world * zoom + pan.
+#[derive(Clone, Copy, Debug)]
+pub struct View {
+    pub pan: (f64, f64),
+    pub zoom: f64,
+}
+
+impl Default for View {
+    fn default() -> View {
+        View { pan: (0.0, 0.0), zoom: 1.0 }
+    }
+}
+
+impl View {
+    pub const MIN_ZOOM: f64 = 0.25;
+    pub const MAX_ZOOM: f64 = 3.0;
+
+    pub fn to_world(self, x: f64, y: f64) -> (f64, f64) {
+        ((x - self.pan.0) / self.zoom, (y - self.pan.1) / self.zoom)
+    }
+
+    /// Change the zoom while keeping the world point under screen position (x, y) in place.
+    pub fn zoom_at(&mut self, x: f64, y: f64, zoom: f64) {
+        let (wx, wy) = self.to_world(x, y);
+        self.zoom = zoom.clamp(View::MIN_ZOOM, View::MAX_ZOOM);
+        self.pan = (x - wx * self.zoom, y - wy * self.zoom);
+    }
+}
+
+/// Draw the scene into a `width` x `height` screen area.
+pub fn draw(cr: &cairo::Context, scene: &Scene, pal: &Palette, ov: &Overlay, view: View, width: f64, height: f64) {
     set(cr, pal.bg);
     cr.paint().ok();
-    // Dot grid.
+    cr.save().ok();
+    cr.translate(view.pan.0, view.pan.1);
+    cr.scale(view.zoom, view.zoom);
+    // Dot grid over the visible part of the (unbounded) canvas.
+    const GRID: f64 = 24.0;
+    let (x0, y0) = view.to_world(0.0, 0.0);
+    let (x1, y1) = view.to_world(width, height);
     set(cr, pal.grid);
-    let mut y = 0.0;
-    while y < height {
-        let mut x = 0.0;
-        while x < width {
+    let mut y = (y0 / GRID).floor() * GRID;
+    while y < y1 {
+        let mut x = (x0 / GRID).floor() * GRID;
+        while x < x1 {
             cr.rectangle(x, y, 2.0, 2.0);
-            x += 24.0;
+            x += GRID;
         }
-        y += 24.0;
+        y += GRID;
     }
     cr.fill().ok();
 
@@ -565,4 +599,5 @@ pub fn draw(cr: &cairo::Context, scene: &Scene, pal: &Palette, ov: &Overlay, wid
         cr.set_line_width(3.0);
         cr.stroke().ok();
     }
+    cr.restore().ok();
 }

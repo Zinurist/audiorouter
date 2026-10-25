@@ -15,8 +15,6 @@ pub struct Setup {
     pub placements: Vec<Placement>,
     #[serde(default)]
     pub links: Vec<SetupLink>,
-    #[serde(default)]
-    pub loopbacks: Vec<LoopbackDef>,
     /// Canvas positions of live units that are not part of the setup, by unit key.
     #[serde(default)]
     pub layout: BTreeMap<String, [f64; 2]>,
@@ -86,7 +84,7 @@ pub struct Selector {
     /// Regex for `name` selectors, matched against node name and description.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pattern: Option<String>,
-    /// For `role` selectors: "easyeffects:output", "easyeffects:input" or "loopback:<id>".
+    /// For `role` selectors: "easyeffects:output" or "easyeffects:input".
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub role: Option<String>,
 }
@@ -127,12 +125,6 @@ pub struct SetupLink {
     pub id: String,
     pub from: String,
     pub to: String,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct LoopbackDef {
-    pub id: String,
-    pub name: String,
 }
 
 impl Setup {
@@ -215,12 +207,6 @@ impl Setup {
     pub fn remove_node(&mut self, node: &str) {
         self.placements.retain(|p| p.node != node);
         self.links.retain(|l| l.from != node && l.to != node);
-        if let Some(n) = self.nodes.iter().find(|n| n.id == node)
-            && let Some(lb) = n.selector.role.as_deref().and_then(|r| r.strip_prefix("loopback:"))
-        {
-            let lb = lb.to_string();
-            self.loopbacks.retain(|l| l.id != lb);
-        }
         self.nodes.retain(|n| n.id != node);
     }
 

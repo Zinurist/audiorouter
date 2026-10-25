@@ -31,6 +31,16 @@ pub struct DesiredLink {
 pub struct LinkState {
     pub pairs: Vec<(usize, usize)>,
     pub present: usize,
+    /// Input nodes whose hidden loopback this link needs but which does not exist yet.
+    pub awaiting_loopback: Vec<String>,
+}
+
+/// A hidden loopback the setup needs: one per input node that feeds something.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct WantedLoopback {
+    pub node: String,
+    /// Display name (`node.description` / `media.name`), derived from the node label.
+    pub name: String,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -47,6 +57,9 @@ pub struct Analysis {
     pub ee_present: bool,
     /// EasyEffects moves every application output stream to its own sink.
     pub ee_grabs_outputs: bool,
+    pub loopbacks: Vec<WantedLoopback>,
+    /// Loopbacks created by the app. They are not drawn; links through them are drawn from the input.
+    pub hidden_units: HashSet<usize>,
 }
 
 impl Analysis {
@@ -95,16 +108,14 @@ fn direction_ok(dir: Direction, kind: &UnitKind) -> bool {
 }
 
 pub fn selector_matches(sel: &Selector, unit: &Unit, live: &LiveGraph, regex: Option<&Regex>) -> bool {
-    if unit.kind.is_app_stream() {
+    if unit.kind.is_app_stream() || unit.kind.is_hidden_loopback() {
         return false;
     }
     match sel.kind {
-        SelectorKind::Role => match (sel.role.as_deref(), &unit.kind) {
-            (Some("easyeffects:output"), UnitKind::EeOut) => true,
-            (Some("easyeffects:input"), UnitKind::EeIn) => true,
-            (Some(r), UnitKind::Loopback { ours: Some(id), .. }) => r.strip_prefix("loopback:") == Some(id.as_str()),
-            _ => false,
-        },
+        SelectorKind::Role => matches!(
+            (sel.role.as_deref(), &unit.kind),
+            (Some("easyeffects:output"), UnitKind::EeOut) | (Some("easyeffects:input"), UnitKind::EeIn)
+        ),
         SelectorKind::Name => {
             let Some(re) = regex else { return false };
             direction_ok(sel.direction, &unit.kind) && (re.is_match(&unit.node_name) || re.is_match(&unit.title))
@@ -155,22 +166,79 @@ pub fn analyze(setup: &Setup, live: &LiveGraph, ee_process_all_setting: Option<b
     }
     a.units = units;
 
-    let live_pairs: HashSet<(u32, u32)> = live.links.values().map(|l| (l.out_port, l.in_port)).collect();
+    // Inputs never link to their targets directly: each input node that feeds something gets one
+    // hidden loopback (device -> loopback -> targets), named after the node.
+    let ours: HashMap<String, usize> = a
+        .units
+        .list
+        .iter()
+        .enumerate()
+        .filter_map(|(i, u)| match &u.kind {
+            UnitKind::Loopback { ours: Some(id), .. } => Some((id.clone(), i)),
+            _ => None,
+        })
+        .collect();
+    a.hidden_units = ours.values().copied().collect();
+    let mut feeding: HashSet<&str> = HashSet::new();
     for l in &setup.links {
-        let froms = a.endpoint_units(setup, &l.from);
+        if setup.is_group(&l.from) {
+            feeding.extend(setup.group_members(&l.from).into_iter().filter_map(|m| setup.node(&m).map(|n| n.id.as_str())));
+        } else {
+            feeding.insert(l.from.as_str());
+        }
+    }
+    let inputs_of = |a: &Analysis, node: &str| -> Vec<usize> {
+        a.node_matches.get(node).into_iter().flatten().copied().filter(|&u| a.units.list[u].kind.is_input()).collect()
+    };
+    for n in &setup.nodes {
+        if feeding.contains(n.id.as_str()) && !inputs_of(&a, &n.id).is_empty() {
+            a.loopbacks.push(WantedLoopback { node: n.id.clone(), name: loopback_name(&n.label) });
+        }
+    }
+
+    let live_pairs: HashSet<(u32, u32)> = live.links.values().map(|l| (l.out_port, l.in_port)).collect();
+    let ports_present = |ports: &[(u32, u32)]| !ports.is_empty() && ports.iter().all(|p| live_pairs.contains(p));
+    for l in &setup.links {
+        let from_nodes = if setup.is_group(&l.from) { setup.group_members(&l.from) } else { vec![l.from.clone()] };
         let tos = a.endpoint_units(setup, &l.to);
         let mut st = LinkState::default();
-        for &f in &froms {
+        let mut froms: Vec<(usize, bool)> = vec![];
+        for node in &from_nodes {
+            let matched = a.node_matches.get(node).cloned().unwrap_or_default();
+            if !a.loopbacks.iter().any(|w| &w.node == node) {
+                froms.extend(matched.into_iter().map(|u| (u, true)));
+                continue;
+            }
+            froms.extend(matched.iter().copied().filter(|&u| !a.units.list[u].kind.is_input()).map(|u| (u, true)));
+            let Some(&lb) = ours.get(node) else {
+                st.awaiting_loopback.push(node.clone());
+                continue;
+            };
+            // Feed: every matched input device -> the loopback (mixed).
+            let mut fed = true;
+            for src in inputs_of(&a, node) {
+                let (Some(out_node), Some(in_node)) = (a.units.list[src].out_node, a.units.list[lb].in_node) else { continue };
+                a.explained.insert((src, lb));
+                let ports = map_ports(live, out_node, in_node);
+                fed &= ports_present(&ports);
+                for (out_port, in_port) in ports {
+                    a.desired.push(DesiredLink { setup_link: l.id.clone(), out_node, out_port, in_node, in_port });
+                }
+            }
+            froms.push((lb, fed));
+        }
+        let mut seen = HashSet::new();
+        for &(f, fed) in &froms {
             for &t in &tos {
                 let (fu, tu) = (&a.units.list[f], &a.units.list[t]);
                 let (Some(out_node), Some(in_node)) = (fu.out_node, tu.in_node) else { continue };
-                if f == t {
+                if f == t || !seen.insert((f, t)) {
                     continue;
                 }
                 st.pairs.push((f, t));
                 a.explained.insert((f, t));
                 let ports = map_ports(live, out_node, in_node);
-                if !ports.is_empty() && ports.iter().all(|p| live_pairs.contains(p)) {
+                if fed && ports_present(&ports) {
                     st.present += 1;
                 }
                 for (out_port, in_port) in ports {
@@ -183,8 +251,14 @@ pub fn analyze(setup: &Setup, live: &LiveGraph, ee_process_all_setting: Option<b
     a
 }
 
+/// Name of the hidden loopback for a node label, as it appears in system sound settings.
+/// Quotes and backslashes would break pactl's module argument parsing.
+pub fn loopback_name(label: &str) -> String {
+    label.replace(['"', '\\'], "").trim().to_string()
+}
+
 /// Commands that bring the live graph closer to the setup. Never touches links the app did not create.
-pub fn plan(setup: &Setup, live: &LiveGraph, a: &Analysis) -> Vec<Command> {
+pub fn plan(live: &LiveGraph, a: &Analysis) -> Vec<Command> {
     let mut cmds = vec![];
     let live_pairs: HashSet<(u32, u32)> = live.links.values().map(|l| (l.out_port, l.in_port)).collect();
     let desired_pairs: HashSet<(u32, u32)> = a.desired.iter().map(|d| (d.out_port, d.in_port)).collect();
@@ -220,15 +294,17 @@ pub fn plan(setup: &Setup, live: &LiveGraph, a: &Analysis) -> Vec<Command> {
             }
         }
     }
-    for lb in &setup.loopbacks {
-        let exists = a.units.list.iter().any(|u| matches!(&u.kind, UnitKind::Loopback { ours: Some(id), .. } if *id == lb.id));
+    // Hidden loopbacks: create missing ones; unload unneeded ones, and renamed ones (the name is
+    // fixed at creation, so a rename recreates the loopback).
+    for w in &a.loopbacks {
+        let exists = a.units.list.iter().any(|u| matches!(&u.kind, UnitKind::Loopback { ours: Some(id), .. } if *id == w.node));
         if !exists {
-            cmds.push(Command::CreateLoopback { id: lb.id.clone(), name: lb.name.clone() });
+            cmds.push(Command::CreateLoopback { id: w.node.clone(), name: w.name.clone() });
         }
     }
     for u in &a.units.list {
         if let UnitKind::Loopback { ours: Some(id), module_id: Some(m) } = &u.kind
-            && !setup.loopbacks.iter().any(|l| &l.id == id)
+            && !a.loopbacks.iter().any(|w| &w.node == id && w.name == u.title)
         {
             cmds.push(Command::UnloadModule(*m));
         }
@@ -378,7 +454,7 @@ mod tests {
         let st = &a.link_states[&s.links[0].id];
         assert_eq!(st.pairs.len(), 2);
         assert_eq!(st.present, 1, "EasyEffects -> headphones already exists");
-        let cmds = plan(&s, &g, &a);
+        let cmds = plan(&g, &a);
         let creates = cmds.iter().filter(|c| matches!(c, Command::CreateLink { .. })).count();
         assert_eq!(creates, 2, "stereo link to HDMI: FL and FR");
         assert!(!cmds.iter().any(|c| matches!(c, Command::DestroyLink(_))), "foreign links are left alone");
@@ -403,20 +479,76 @@ mod tests {
         });
         // Without an EasyEffects link in the setup, its own routing is left alone.
         let a = analyze(&s, &g, None);
-        assert!(!plan(&s, &g, &a).iter().any(|c| matches!(c, Command::DestroyLink(_))));
+        assert!(!plan(&g, &a).iter().any(|c| matches!(c, Command::DestroyLink(_))));
         // Routing EasyEffects to HDMI removes its own link to the headphones.
         s.add_link("ee", "hdmi");
         let a = analyze(&s, &g, None);
-        let destroys = plan(&s, &g, &a).iter().filter(|c| matches!(c, Command::DestroyLink(_))).count();
+        let destroys = plan(&g, &a).iter().filter(|c| matches!(c, Command::DestroyLink(_))).count();
         assert_eq!(destroys, 2, "FL and FR to the headphones");
     }
 
-    #[test]
-    fn plan_manages_loopbacks() {
-        let g = live();
+    fn tv_setup() -> Setup {
         let mut s = Setup::default();
-        s.loopbacks.push(crate::setup::LoopbackDef { id: "lb1".into(), name: "TV".into() });
+        s.nodes.push(SetupNode {
+            id: "tv".into(),
+            label: "TV".into(),
+            selector: Selector {
+                kind: SelectorKind::Name,
+                direction: Direction::Source,
+                profile: None,
+                device: None,
+                pattern: Some("USB_PnP".into()),
+                role: None,
+            },
+        });
+        s.nodes.push(role_node("ee", "easyeffects:output"));
+        s.add_link("tv", "ee");
+        s
+    }
+
+    /// Turn the fixture's external loopback into one the app created for node "tv".
+    fn adopt_fixture_loopback(g: &mut LiveGraph, name: &str) {
+        for p in g.nodes.values_mut() {
+            if p.get("node.link-group").is_some_and(|l| l.starts_with("loopback-")) {
+                p.insert(crate::model::LOOPBACK_PROP.into(), "tv".into());
+                p.insert("node.description".into(), name.into());
+            }
+        }
+    }
+
+    #[test]
+    fn inputs_get_a_hidden_loopback() {
+        let g = live();
+        let s = tv_setup();
         let a = analyze(&s, &g, None);
-        assert!(plan(&s, &g, &a).contains(&Command::CreateLoopback { id: "lb1".into(), name: "TV".into() }));
+        assert_eq!(a.loopbacks, vec![WantedLoopback { node: "tv".into(), name: "TV".into() }]);
+        assert_eq!(a.link_states[&s.links[0].id].awaiting_loopback, vec!["tv".to_string()]);
+        let cmds = plan(&g, &a);
+        assert!(cmds.contains(&Command::CreateLoopback { id: "tv".into(), name: "TV".into() }));
+        // No direct device -> EasyEffects links, and the external loopback is left alone.
+        assert!(!cmds.iter().any(|c| matches!(c, Command::CreateLink { .. } | Command::UnloadModule(_))));
+    }
+
+    #[test]
+    fn hidden_loopback_is_used_renamed_and_removed() {
+        let mut g = live();
+        adopt_fixture_loopback(&mut g, "TV");
+        let mut s = tv_setup();
+        let a = analyze(&s, &g, None);
+        let (lb, _) = unit(&a.units, "loopback:tv");
+        assert!(a.hidden_units.contains(&lb));
+        assert!(!a.managed_units.contains(&lb));
+        let st = &a.link_states[&s.links[0].id];
+        assert_eq!((st.pairs.len(), st.present), (1, 1), "device -> loopback -> EasyEffects already exists");
+        assert!(plan(&g, &a).is_empty());
+
+        s.node_mut("tv").unwrap().label = "Television".into();
+        let a = analyze(&s, &g, None);
+        assert!(matches!(plan(&g, &a).as_slice(), [Command::UnloadModule(_)]), "rename recreates the loopback");
+
+        s.links.clear();
+        let a = analyze(&s, &g, None);
+        assert!(a.loopbacks.is_empty());
+        assert!(plan(&g, &a).iter().any(|c| matches!(c, Command::UnloadModule(_))));
     }
 }

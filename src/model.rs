@@ -160,7 +160,7 @@ pub enum UnitKind {
     /// Application recording stream.
     AppIn,
     /// A pair of linked stream nodes (module-loopback and similar).
-    /// `ours` is the Audio Router loopback id if we created it.
+    /// `ours` is the setup node id of the input it belongs to, if the app created it.
     Loopback {
         ours: Option<String>,
         module_id: Option<u32>,
@@ -174,6 +174,17 @@ pub enum UnitKind {
 impl UnitKind {
     pub fn is_app_stream(&self) -> bool {
         matches!(self, UnitKind::AppOut | UnitKind::AppIn)
+    }
+
+    /// Something that produces audio on its own (an input device or the EasyEffects mic chain).
+    /// Inputs reach their targets through a hidden loopback.
+    pub fn is_input(&self) -> bool {
+        matches!(self, UnitKind::HwSource | UnitKind::VirtSource | UnitKind::EeIn)
+    }
+
+    /// A loopback the app created for an input. Never shown and never matched by selectors.
+    pub fn is_hidden_loopback(&self) -> bool {
+        matches!(self, UnitKind::Loopback { ours: Some(_), .. })
     }
 }
 

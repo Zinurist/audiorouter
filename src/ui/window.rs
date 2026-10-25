@@ -32,24 +32,35 @@ pub fn build(app: &adw::Application, engine: EngineRef) -> adw::ApplicationWindo
     engine.borrow_mut().set_toast_handler(toast.clone());
 
     let canvas = Canvas::new(engine.clone(), toast);
-    let scroller = gtk::ScrolledWindow::builder().child(&canvas.area).hexpand(true).vexpand(true).build();
-    toasts.set_child(Some(&scroller));
+    toasts.set_child(Some(&canvas.area));
 
     let banner = adw::Banner::builder().button_label("Details").build();
     let title = adw::WindowTitle::new("Audio Router", "");
     let header = adw::HeaderBar::builder().title_widget(&title).build();
 
     let add_group = gtk::Button::builder().icon_name("view-grid-symbolic").tooltip_text("Add group").build();
-    let add_loopback = gtk::Button::builder().icon_name("media-playlist-repeat-symbolic").tooltip_text("Add loopback").build();
     header.pack_start(&add_group);
-    header.pack_start(&add_loopback);
 
     let menu = gio::Menu::new();
-    menu.append(Some("Start at Login"), Some("app.autostart"));
-    menu.append(Some("Help"), Some("win.help"));
-    menu.append(Some("Quit"), Some("app.quit"));
+    let section = gio::Menu::new();
+    section.append(Some("Run in Background"), Some("app.background"));
+    menu.append_section(None, &section);
+    let section = gio::Menu::new();
+    let on_close = gio::Menu::new();
+    on_close.append(Some("Ask Every Time"), Some("app.close-action::ask"));
+    on_close.append(Some("Run in Background"), Some("app.close-action::background"));
+    on_close.append(Some("Quit"), Some("app.close-action::quit"));
+    section.append_submenu(Some("When Closing the Window"), &on_close);
+    section.append(Some("Start at Login"), Some("app.autostart"));
+    section.append(Some("Show in System Tray"), Some("app.show-tray"));
+    menu.append_section(None, &section);
+    let section = gio::Menu::new();
+    section.append(Some("Help"), Some("win.help"));
+    section.append(Some("Quit"), Some("app.quit"));
+    menu.append_section(None, &section);
     let menu_button = gtk::MenuButton::builder().icon_name("open-menu-symbolic").menu_model(&menu).primary(true).build();
     header.pack_end(&menu_button);
+    header.pack_end(&canvas.zoom_button);
 
     let view = adw::ToolbarView::new();
     view.add_top_bar(&header);
@@ -67,8 +78,6 @@ pub fn build(app: &adw::Application, engine: EngineRef) -> adw::ApplicationWindo
     {
         let (c, e) = (canvas.clone(), engine.clone());
         add_group.connect_clicked(move |b| canvas::add_group(b, e.clone(), c.visible_origin()));
-        let (c, e) = (canvas.clone(), engine.clone());
-        add_loopback.connect_clicked(move |b| canvas::add_loopback(b, e.clone(), c.visible_origin()));
     }
 
     let help = gio::SimpleAction::new("help", None);
@@ -85,7 +94,11 @@ pub fn build(app: &adw::Application, engine: EngineRef) -> adw::ApplicationWindo
                  • Groups: drop boxes into a group; audio sent to the group goes to all of them.\n\
                  • Right-click a box → Duplicate to put the same device into several groups.\n\
                  • Double-click a box to choose how it is matched (exact device, same model, vendor, name pattern).\n\
-                 • Changes apply immediately and are saved automatically.",
+                 • Input devices play through their targets with a name you choose: double-click an input to rename it, \
+                 and that name is shown in the system sound settings.\n\
+                 • Changes apply immediately and are saved automatically.\n\
+                 • Run in Background (menu) keeps the setup applied without a window (reconnecting devices, restarting \
+                 EasyEffects). Start Audio Router again or click its tray icon to get the window back; Quit (Ctrl+Q) stops it.",
             )
         }
     });
@@ -103,7 +116,6 @@ pub fn build(app: &adw::Application, engine: EngineRef) -> adw::ApplicationWindo
         let (e, banner, title) = (engine.clone(), banner.clone(), title.clone());
         move || {
             let e = e.borrow();
-            let errors = e.problems.iter().filter(|p| p.severity == Severity::Error).count();
             let worst = e.problems.iter().map(|p| p.severity).max();
             banner.remove_css_class("problem-error");
             banner.remove_css_class("problem-warning");
@@ -118,18 +130,7 @@ pub fn build(app: &adw::Application, engine: EngineRef) -> adw::ApplicationWindo
                 }
                 None => banner.set_revealed(false),
             }
-            let status = if !e.connected {
-                "Not connected to PipeWire".to_string()
-            } else if !e.is_settled() {
-                "Applying…".to_string()
-            } else if errors > 0 {
-                format!("{errors} problem{}", if errors == 1 { "" } else { "s" })
-            } else if e.setup.links.is_empty() {
-                "Live view · drag between boxes to connect".to_string()
-            } else {
-                "Setup applied".to_string()
-            };
-            title.set_subtitle(&status);
+            title.set_subtitle(&e.status_text());
         }
     };
     update_status();

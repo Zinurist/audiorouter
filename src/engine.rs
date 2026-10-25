@@ -14,7 +14,7 @@ use crate::backend::{self, Backend, BackendCmd, BackendEvent};
 use crate::easyeffects;
 use crate::model::{LOOPBACK_PROP, LiveGraph, UnitKind, profile_of};
 use crate::reconcile::{self, Analysis, Command, device_ident};
-use crate::setup::{Direction, LoopbackDef, Placement, Selector, SelectorKind, Setup, SetupNode};
+use crate::setup::{Direction, Placement, Selector, SelectorKind, Setup, SetupNode};
 
 /// A link that has not shown up this long after creating it counts as failed.
 const PENDING_TIMEOUT: Duration = Duration::from_secs(4);
@@ -66,6 +66,9 @@ pub struct Engine {
     pending: HashMap<(u32, u32), Instant>,
     failed: HashMap<(u32, u32), Instant>,
     destroying: HashMap<u32, Instant>,
+    /// pulse module ids being unloaded.
+    unloading: HashMap<u32, Instant>,
+    /// Hidden loopback creation, by input node id.
     loopback_attempts: HashMap<String, Instant>,
     loopback_errors: HashMap<String, String>,
     ee_launched: Option<Instant>,
@@ -109,6 +112,7 @@ impl Engine {
             pending: HashMap::new(),
             failed: HashMap::new(),
             destroying: HashMap::new(),
+            unloading: HashMap::new(),
             loopback_attempts: HashMap::new(),
             loopback_errors: HashMap::new(),
             ee_launched: None,
@@ -166,8 +170,24 @@ impl Engine {
         self.on_toast = Some(f);
     }
 
+    /// One-line status for the window subtitle and the tray tooltip.
+    pub fn status_text(&self) -> String {
+        let errors = self.problems.iter().filter(|p| p.severity == Severity::Error).count();
+        if !self.connected {
+            "Not connected to PipeWire".to_string()
+        } else if !self.is_settled() {
+            "Applying…".to_string()
+        } else if errors > 0 {
+            format!("{errors} problem{}", if errors == 1 { "" } else { "s" })
+        } else if self.setup.links.is_empty() {
+            "Live view · drag between boxes to connect".to_string()
+        } else {
+            "Setup applied".to_string()
+        }
+    }
+
     pub fn is_settled(&self) -> bool {
-        self.pending.is_empty() && self.destroying.is_empty()
+        self.pending.is_empty() && self.destroying.is_empty() && self.unloading.is_empty()
     }
 
     pub fn save(&mut self) {
@@ -192,7 +212,13 @@ impl Engine {
         if ports.iter().any(|p| self.pending.contains_key(p)) {
             return LinkUi::Pending;
         }
-        match self.analysis.link_states.get(link_id) {
+        let state = self.analysis.link_states.get(link_id);
+        let awaiting = state.map(|st| st.awaiting_loopback.as_slice()).unwrap_or_default();
+        if awaiting.iter().any(|n| self.loopback_errors.contains_key(n)) {
+            return LinkUi::Failed;
+        }
+        match state {
+            Some(st) if st.pairs.is_empty() && !awaiting.is_empty() => LinkUi::Pending,
             Some(st) if st.pairs.is_empty() => LinkUi::Waiting,
             Some(st) if st.present == st.pairs.len() => LinkUi::Ok,
             Some(st) if st.present > 0 => LinkUi::Partial,
@@ -208,9 +234,11 @@ impl Engine {
             UnitKind::AppOut | UnitKind::AppIn => {
                 Some("Applications follow the system default device. Right-click an output and choose “Use as default”.".into())
             }
-            UnitKind::Loopback { ours: None, .. } => {
-                Some("This loopback was created outside Audio Router. Add a loopback from the menu instead, then remove this one.".into())
-            }
+            UnitKind::Loopback { .. } => Some(
+                "This loopback was created outside Audio Router and cannot be part of the setup. Connect the input device directly \
+                 instead (Audio Router routes inputs through its own loopback), then remove this one."
+                    .into(),
+            ),
             _ => None,
         }
     }
@@ -248,14 +276,6 @@ impl Engine {
                 device: None,
                 pattern: None,
                 role: Some(if unit.kind == UnitKind::EeOut { "easyeffects:output" } else { "easyeffects:input" }.into()),
-            },
-            UnitKind::Loopback { ours: Some(id), .. } => Selector {
-                kind: SelectorKind::Role,
-                direction: Direction::Any,
-                profile: None,
-                device: None,
-                pattern: None,
-                role: Some(format!("loopback:{id}")),
             },
             _ => return Err("This node cannot be added to the setup".into()),
         };
@@ -334,26 +354,6 @@ impl Engine {
         Ok(())
     }
 
-    pub fn add_loopback(&mut self, name: &str, pos: [f64; 2]) {
-        let id = self.setup.new_id("lb");
-        self.setup.loopbacks.push(LoopbackDef { id: id.clone(), name: name.into() });
-        let nid = self.setup.new_id("n");
-        self.setup.nodes.push(SetupNode {
-            id: nid.clone(),
-            label: name.into(),
-            selector: Selector {
-                kind: SelectorKind::Role,
-                direction: Direction::Any,
-                profile: None,
-                device: None,
-                pattern: None,
-                role: Some(format!("loopback:{id}")),
-            },
-        });
-        let pid = self.setup.new_id("p");
-        self.setup.placements.push(Placement { id: pid, node: nid, pos, group: None });
-    }
-
     pub fn unload_module(&self, module: u32) {
         run_pactl(vec!["unload-module".into(), module.to_string()], None);
     }
@@ -374,6 +374,22 @@ impl Engine {
         for e in self.loopback_errors.values() {
             p.push(Problem { severity: Severity::Error, text: e.clone() });
         }
+        // An input that also feeds a loopback made outside the app would be heard twice.
+        let units = &self.analysis.units;
+        for w in &self.analysis.loopbacks {
+            let feeds_foreign = self.analysis.node_matches.get(&w.node).into_iter().flatten().any(|&src| {
+                units.edges.iter().any(|e| e.from == src && matches!(units.list[e.to].kind, UnitKind::Loopback { ours: None, .. }))
+            });
+            if feeds_foreign {
+                p.push(Problem {
+                    severity: Severity::Warning,
+                    text: format!(
+                        "“{}” also feeds a loopback created outside Audio Router, so it may be heard twice. Right-click that loopback to remove it.",
+                        self.setup.node(&w.node).map(|n| n.label.as_str()).unwrap_or_default()
+                    ),
+                });
+            }
+        }
         for l in &self.setup.links {
             if self.link_ui(&l.id) == LinkUi::Failed {
                 p.push(Problem {
@@ -393,10 +409,8 @@ impl Engine {
     }
 
     fn is_role_starting(&self, n: &SetupNode) -> bool {
-        n.selector.role.as_deref().is_some_and(|r| {
-            (r.starts_with("easyeffects:") && self.ee_launched.is_some_and(|t| t.elapsed() < EE_START_TIMEOUT))
-                || r.strip_prefix("loopback:").is_some_and(|id| self.loopback_attempts.get(id).is_some_and(|t| t.elapsed() < RETRY_AFTER))
-        })
+        n.selector.role.as_deref().is_some_and(|r| r.starts_with("easyeffects:"))
+            && self.ee_launched.is_some_and(|t| t.elapsed() < EE_START_TIMEOUT)
     }
 
     fn notify(&self) {
@@ -456,9 +470,21 @@ pub fn reconcile_now(engine: &EngineRef) {
         e.pending.retain(|p, _| !live_ports.contains(p));
         e.failed.retain(|p, t| !live_ports.contains(p) && t.elapsed() < RETRY_AFTER);
         e.destroying.retain(|id, t| e.live.links.contains_key(id) && t.elapsed() < PENDING_TIMEOUT);
-        e.loopback_errors.retain(|id, _| e.setup.loopbacks.iter().any(|l| &l.id == id));
+        let modules: std::collections::HashSet<u32> = e
+            .analysis
+            .units
+            .list
+            .iter()
+            .filter_map(|u| match u.kind {
+                UnitKind::Loopback { module_id, .. } => module_id,
+                _ => None,
+            })
+            .collect();
+        e.unloading.retain(|m, t| modules.contains(m) && t.elapsed() < PENDING_TIMEOUT);
+        let wanted = &e.analysis.loopbacks;
+        e.loopback_errors.retain(|id, _| wanted.iter().any(|w| &w.node == id));
 
-        let cmds = reconcile::plan(&e.setup, &e.live, &e.analysis);
+        let cmds = reconcile::plan(&e.live, &e.analysis);
         for cmd in cmds {
             execute(e, cmd, engine);
         }
@@ -521,12 +547,15 @@ fn execute(e: &mut Engine, cmd: Command, engine: &EngineRef) {
                 return;
             }
             e.loopback_attempts.insert(id.clone(), Instant::now());
-            let desc = name.replace(['"', '\\'], "");
+            // `name` is already free of quotes (reconcile::loopback_name). media.name is what system
+            // sound settings show for the stream.
+            let props =
+                |n: String| format!("node.autoconnect=false {LOOPBACK_PROP}={id} node.description=\\\"{n}\\\" media.name=\\\"{n}\\\"");
             let args = vec![
                 "load-module".into(),
                 "module-loopback".into(),
-                format!("sink_input_properties=\"node.autoconnect=false {LOOPBACK_PROP}={id} node.description=\\\"{desc}\\\"\""),
-                format!("source_output_properties=\"node.autoconnect=false {LOOPBACK_PROP}={id} node.description=\\\"{desc} (input)\\\"\""),
+                format!("sink_input_properties=\"{}\"", props(name.clone())),
+                format!("source_output_properties=\"{}\"", props(format!("{name} (input)"))),
             ];
             let weak = Rc::downgrade(engine);
             run_pactl(
@@ -539,17 +568,17 @@ fn execute(e: &mut Engine, cmd: Command, engine: &EngineRef) {
                             e.loopback_errors.remove(&id);
                         }
                         Err(err) => {
-                            e.loopback_errors.insert(id.clone(), format!("Could not create loopback “{name}”: {err}"));
+                            e.loopback_errors.insert(id.clone(), format!("Could not create the audio loopback for “{name}”: {err}"));
                         }
                     }
                 })),
             );
         }
         Command::UnloadModule(m) => {
-            if e.destroying.contains_key(&m) {
+            if e.unloading.contains_key(&m) {
                 return;
             }
-            e.destroying.insert(m, Instant::now());
+            e.unloading.insert(m, Instant::now());
             run_pactl(vec!["unload-module".into(), m.to_string()], None);
         }
     }

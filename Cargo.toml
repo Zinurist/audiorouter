@@ -17,3 +17,4 @@ async-channel = "2"
 anyhow = "1"
 pangocairo = "0.22"
 cairo-rs = { version = "0.22", features = ["png"] }
+ksni = { version = "0.3.7", default-features = false, features = ["async-io", "blocking"] }
