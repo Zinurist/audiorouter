@@ -1,0 +1,19 @@
+[package]
+name = "audiorouter"
+version = "0.1.0"
+edition = "2024"
+description = "Audio Router: a graph-based PipeWire routing manager for the Linux desktop"
+license = "GPL-3.0-or-later"
+
+[dependencies]
+adw = { package = "libadwaita", version = "0.9", features = ["v1_6"] }
+gtk = { package = "gtk4", version = "0.11", features = ["v4_14"] }
+pipewire = "0.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "1"
+regex = "1"
+async-channel = "2"
+anyhow = "1"
+pangocairo = "0.22"
+cairo-rs = { version = "0.22", features = ["png"] }

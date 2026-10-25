@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Audio Router
+Comment=Route audio between devices and effects as a graph
+Exec=audiorouter
+Icon=audio-card
+Terminal=false
+Categories=AudioVideo;Audio;GTK;
+Keywords=audio;pipewire;routing;sink;source;loopback;easyeffects;
+StartupNotify=true

@@ -1,0 +1,1744 @@
+[
+  {
+    "id": 39,
+    "type": "PipeWire:Interface:Metadata",
+    "props": {
+      "metadata.name": "default"
+    },
+    "metadata": [
+      {
+        "subject": 0,
+        "key": "default.audio.sink",
+        "type": "Spa:String:JSON",
+        "value": {
+          "name": "alsa_output.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001-00.analog-stereo"
+        }
+      },
+      {
+        "subject": 0,
+        "key": "default.audio.source",
+        "type": "Spa:String:JSON",
+        "value": {
+          "name": "alsa_input.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001-00.mono-fallback"
+        }
+      },
+      {
+        "subject": 172,
+        "key": "target.node",
+        "type": "Spa:Id",
+        "value": 81
+      },
+      {
+        "subject": 172,
+        "key": "target.object",
+        "type": "Spa:Id",
+        "value": 87
+      },
+      {
+        "subject": 64,
+        "key": "target.node",
+        "type": "Spa:Id",
+        "value": 81
+      },
+      {
+        "subject": 64,
+        "key": "target.object",
+        "type": "Spa:Id",
+        "value": 87
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "device.api": "alsa",
+        "device.bus": "pci",
+        "device.bus-path": "pci-0000:c7:00.1",
+        "device.description": "Radeon High Definition Audio Controller",
+        "device.name": "alsa_card.pci-0000_c7_00.1",
+        "device.product.id": "0x1640",
+        "device.vendor.id": "0x1002",
+        "media.class": "Audio/Device"
+      }
+    }
+  },
+  {
+    "id": 47,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "device.api": "alsa",
+        "device.bus": "usb",
+        "device.bus-path": "pci-0000:c7:00.3-usb-0:3.4:2.0",
+        "device.description": "USB-C to 3.5mm Headphone Jack Adapter",
+        "device.name": "alsa_card.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001-00",
+        "device.product.id": "0x110a",
+        "device.serial": "Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001",
+        "device.vendor.id": "0x05ac",
+        "media.class": "Audio/Device"
+      }
+    }
+  },
+  {
+    "id": 48,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "device.api": "alsa",
+        "device.bus": "usb",
+        "device.bus-path": "pci-0000:c7:00.3-usb-0:4:1.0",
+        "device.description": "USB PnP Audio Device",
+        "device.name": "alsa_card.usb-0c76_USB_PnP_Audio_Device-00",
+        "device.product.id": "0x1170",
+        "device.serial": "0c76_USB_PnP_Audio_Device",
+        "device.vendor.id": "0x0c76",
+        "media.class": "Audio/Device"
+      }
+    }
+  },
+  {
+    "id": 49,
+    "type": "PipeWire:Interface:Device",
+    "info": {
+      "props": {
+        "device.api": "alsa",
+        "device.bus": "pci",
+        "device.bus-path": "pci-0000:c7:00.6",
+        "device.description": "Ryzen HD Audio Controller",
+        "device.name": "alsa_card.pci-0000_c7_00.6",
+        "device.product.id": "0x15e3",
+        "device.vendor.id": "0x1022",
+        "media.class": "Audio/Device"
+      }
+    }
+  },
+  {
+    "id": 51,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "node.id": 50,
+        "port.direction": "in",
+        "port.name": "Midi Through: Port-0 (playback)"
+      }
+    }
+  },
+  {
+    "id": 52,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "node.id": 50,
+        "port.direction": "out",
+        "port.name": "Midi Through: Port-0 (capture)"
+      }
+    }
+  },
+  {
+    "id": 54,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "node.id": 53,
+        "port.direction": "in",
+        "port.name": "in"
+      }
+    }
+  },
+  {
+    "id": 55,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "node.id": 53,
+        "port.direction": "out",
+        "port.name": "out"
+      }
+    }
+  },
+  {
+    "id": 45,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 47,
+        "media.class": "Audio/Sink",
+        "node.description": "USB-C to 3.5mm Headphone Jack Adapter Analog Stereo",
+        "node.name": "alsa_output.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001-00.analog-stereo",
+        "node.nick": "USB-C to 3.5mm Headphone Jack A",
+        "object.serial": 61
+      }
+    }
+  },
+  {
+    "id": 59,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 47,
+        "media.class": "Audio/Source",
+        "node.description": "USB-C to 3.5mm Headphone Jack Adapter Mono",
+        "node.name": "alsa_input.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001-00.mono-fallback",
+        "node.nick": "USB-C to 3.5mm Headphone Jack A",
+        "object.serial": 62
+      }
+    }
+  },
+  {
+    "id": 58,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 48,
+        "media.class": "Audio/Source",
+        "node.description": "USB PnP Audio Device Analog Stereo",
+        "node.name": "alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo",
+        "node.nick": "USB PnP Audio Device",
+        "object.serial": 63
+      }
+    }
+  },
+  {
+    "id": 57,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 49,
+        "media.class": "Audio/Sink",
+        "node.description": "Ryzen HD Audio Controller Analog Stereo",
+        "node.name": "alsa_output.pci-0000_c7_00.6.analog-stereo",
+        "node.nick": "ALC269VC Analog",
+        "object.serial": 64
+      }
+    }
+  },
+  {
+    "id": 56,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 49,
+        "media.class": "Audio/Source",
+        "node.description": "Ryzen HD Audio Controller Analog Stereo",
+        "node.name": "alsa_input.pci-0000_c7_00.6.analog-stereo",
+        "node.nick": "ALC269VC Analog",
+        "object.serial": 65
+      }
+    }
+  },
+  {
+    "id": 65,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 45,
+        "port.direction": "in",
+        "port.name": "playback_FL"
+      }
+    }
+  },
+  {
+    "id": 66,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 45,
+        "port.direction": "in",
+        "port.name": "playback_FR"
+      }
+    }
+  },
+  {
+    "id": 67,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 45,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FL"
+      }
+    }
+  },
+  {
+    "id": 68,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 45,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FR"
+      }
+    }
+  },
+  {
+    "id": 69,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "MONO",
+        "node.id": 59,
+        "port.direction": "out",
+        "port.name": "capture_MONO"
+      }
+    }
+  },
+  {
+    "id": 70,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 58,
+        "port.direction": "out",
+        "port.name": "capture_FL"
+      }
+    }
+  },
+  {
+    "id": 71,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 58,
+        "port.direction": "out",
+        "port.name": "capture_FR"
+      }
+    }
+  },
+  {
+    "id": 72,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 57,
+        "port.direction": "in",
+        "port.name": "playback_FL"
+      }
+    }
+  },
+  {
+    "id": 73,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 57,
+        "port.direction": "in",
+        "port.name": "playback_FR"
+      }
+    }
+  },
+  {
+    "id": 74,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 57,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FL"
+      }
+    }
+  },
+  {
+    "id": 75,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 57,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FR"
+      }
+    }
+  },
+  {
+    "id": 76,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 56,
+        "port.direction": "out",
+        "port.name": "capture_FL"
+      }
+    }
+  },
+  {
+    "id": 77,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 56,
+        "port.direction": "out",
+        "port.name": "capture_FR"
+      }
+    }
+  },
+  {
+    "id": 81,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.class": "Audio/Sink",
+        "node.description": "Easy Effects Sink",
+        "node.group": "ee_sink_group",
+        "node.name": "easyeffects_sink",
+        "object.serial": 87
+      }
+    }
+  },
+  {
+    "id": 82,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.class": "Audio/Source/Virtual",
+        "node.description": "Easy Effects Source",
+        "node.group": "ee_source_group",
+        "node.name": "easyeffects_source",
+        "object.serial": 88
+      }
+    }
+  },
+  {
+    "id": 83,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 81,
+        "port.direction": "in",
+        "port.name": "playback_FL"
+      }
+    }
+  },
+  {
+    "id": 84,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 81,
+        "port.direction": "in",
+        "port.name": "playback_FR"
+      }
+    }
+  },
+  {
+    "id": 85,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 81,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FL"
+      }
+    }
+  },
+  {
+    "id": 86,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 81,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FR"
+      }
+    }
+  },
+  {
+    "id": 87,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 82,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 88,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 82,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 89,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 82,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "capture_FL"
+      }
+    }
+  },
+  {
+    "id": 90,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 82,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "capture_FR"
+      }
+    }
+  },
+  {
+    "id": 91,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_sie_output_level",
+        "node.description": "Output Level Meter",
+        "node.group": "ee_source_group",
+        "node.name": "ee_sie_output_level",
+        "node.nick": "output_level",
+        "object.serial": 97
+      }
+    }
+  },
+  {
+    "id": 92,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 91,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 93,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 91,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 94,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 91,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 95,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 91,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 96,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_sie_spectrum",
+        "node.description": "Spectrum",
+        "node.group": "ee_source_group",
+        "node.name": "ee_sie_spectrum",
+        "node.nick": "spectrum",
+        "object.serial": 102
+      }
+    }
+  },
+  {
+    "id": 97,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 96,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 98,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 96,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 99,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 96,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 100,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 96,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 107,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_output_level",
+        "node.description": "Output Level Meter",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_output_level",
+        "node.nick": "output_level",
+        "object.serial": 113
+      }
+    }
+  },
+  {
+    "id": 108,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 107,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 109,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 107,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 110,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 107,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 111,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 107,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 112,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_spectrum",
+        "node.description": "Spectrum",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_spectrum",
+        "node.nick": "spectrum",
+        "object.serial": 118
+      }
+    }
+  },
+  {
+    "id": 113,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 112,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 114,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 112,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 115,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 112,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 116,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 112,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 166,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_test_signals",
+        "node.description": "Easy Effects Filter",
+        "node.name": "ee_test_signals",
+        "object.serial": 172
+      }
+    }
+  },
+  {
+    "id": 167,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 166,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 168,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 166,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 120,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 107,
+      "output-port-id": 110,
+      "input-node-id": 45,
+      "input-port-id": 65,
+      "props": {}
+    }
+  },
+  {
+    "id": 119,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 107,
+      "output-port-id": 111,
+      "input-node-id": 45,
+      "input-port-id": 66,
+      "props": {}
+    }
+  },
+  {
+    "id": 118,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 112,
+      "output-port-id": 115,
+      "input-node-id": 107,
+      "input-port-id": 108,
+      "props": {}
+    }
+  },
+  {
+    "id": 117,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 112,
+      "output-port-id": 116,
+      "input-node-id": 107,
+      "input-port-id": 109,
+      "props": {}
+    }
+  },
+  {
+    "id": 137,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_limiter",
+        "node.description": "Limiter (Speakers)",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_limiter",
+        "node.nick": "limiter",
+        "object.serial": 180
+      }
+    }
+  },
+  {
+    "id": 143,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 137,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 142,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 137,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 141,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FL",
+        "node.id": 137,
+        "port.direction": "in",
+        "port.name": "probe_FL"
+      }
+    }
+  },
+  {
+    "id": 140,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FR",
+        "node.id": 137,
+        "port.direction": "in",
+        "port.name": "probe_FR"
+      }
+    }
+  },
+  {
+    "id": 139,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 137,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 138,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 137,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 121,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 137,
+      "output-port-id": 139,
+      "input-node-id": 112,
+      "input-port-id": 113,
+      "props": {}
+    }
+  },
+  {
+    "id": 127,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 137,
+      "output-port-id": 138,
+      "input-node-id": 112,
+      "input-port-id": 114,
+      "props": {}
+    }
+  },
+  {
+    "id": 129,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_equalizer",
+        "node.description": "Equalizer (Speakers)",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_equalizer",
+        "node.nick": "equalizer",
+        "object.serial": 189
+      }
+    }
+  },
+  {
+    "id": 126,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 129,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 128,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 129,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 125,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 129,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 124,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 129,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 123,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 129,
+      "output-port-id": 125,
+      "input-node-id": 137,
+      "input-port-id": 143,
+      "props": {}
+    }
+  },
+  {
+    "id": 122,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 129,
+      "output-port-id": 124,
+      "input-node-id": 137,
+      "input-port-id": 142,
+      "props": {}
+    }
+  },
+  {
+    "id": 155,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_multiband_compressor",
+        "node.description": "Multiband Compressor (Speakers)",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_multiband_compressor",
+        "node.nick": "multiband_compressor",
+        "object.serial": 196
+      }
+    }
+  },
+  {
+    "id": 161,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 155,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 160,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 155,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 159,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FL",
+        "node.id": 155,
+        "port.direction": "in",
+        "port.name": "probe_FL"
+      }
+    }
+  },
+  {
+    "id": 158,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FR",
+        "node.id": 155,
+        "port.direction": "in",
+        "port.name": "probe_FR"
+      }
+    }
+  },
+  {
+    "id": 157,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 155,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 165,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 155,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 156,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 155,
+      "output-port-id": 157,
+      "input-node-id": 129,
+      "input-port-id": 126,
+      "props": {}
+    }
+  },
+  {
+    "id": 164,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 155,
+      "output-port-id": 165,
+      "input-node-id": 129,
+      "input-port-id": 128,
+      "props": {}
+    }
+  },
+  {
+    "id": 130,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_compressor",
+        "node.description": "Compressor (Speakers)",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_compressor",
+        "node.nick": "compressor",
+        "object.serial": 205
+      }
+    }
+  },
+  {
+    "id": 134,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 130,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 136,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 130,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 133,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FL",
+        "node.id": 130,
+        "port.direction": "in",
+        "port.name": "probe_FL"
+      }
+    }
+  },
+  {
+    "id": 135,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FR",
+        "node.id": 130,
+        "port.direction": "in",
+        "port.name": "probe_FR"
+      }
+    }
+  },
+  {
+    "id": 132,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 130,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 145,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 130,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 131,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 130,
+      "output-port-id": 132,
+      "input-node-id": 155,
+      "input-port-id": 161,
+      "props": {}
+    }
+  },
+  {
+    "id": 144,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 130,
+      "output-port-id": 145,
+      "input-node-id": 155,
+      "input-port-id": 160,
+      "props": {}
+    }
+  },
+  {
+    "id": 146,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.name": "ee_soe_gate",
+        "node.description": "Gate (Speakers)",
+        "node.group": "ee_sink_group",
+        "node.name": "ee_soe_gate",
+        "node.nick": "gate",
+        "object.serial": 214
+      }
+    }
+  },
+  {
+    "id": 152,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 146,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 154,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 146,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 151,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FL",
+        "node.id": 146,
+        "port.direction": "in",
+        "port.name": "probe_FL"
+      }
+    }
+  },
+  {
+    "id": 153,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "PROBE_FR",
+        "node.id": 146,
+        "port.direction": "in",
+        "port.name": "probe_FR"
+      }
+    }
+  },
+  {
+    "id": 150,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 146,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 149,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 146,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 148,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 146,
+      "output-port-id": 150,
+      "input-node-id": 130,
+      "input-port-id": 134,
+      "props": {}
+    }
+  },
+  {
+    "id": 163,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 146,
+      "output-port-id": 149,
+      "input-node-id": 130,
+      "input-port-id": 136,
+      "props": {}
+    }
+  },
+  {
+    "id": 147,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 81,
+      "output-port-id": 85,
+      "input-node-id": 146,
+      "input-port-id": 152,
+      "props": {}
+    }
+  },
+  {
+    "id": 162,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 81,
+      "output-port-id": 86,
+      "input-node-id": 146,
+      "input-port-id": 154,
+      "props": {}
+    }
+  },
+  {
+    "id": 172,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.class": "Stream/Output/Audio",
+        "media.name": "loopback-3044-13 output",
+        "node.autoconnect": true,
+        "node.description": "loopback-3044-13",
+        "node.group": "loopback-536870916",
+        "node.link-group": "loopback-3044-13",
+        "node.name": "output.loopback-3044-13",
+        "object.serial": 233,
+        "pulse.module.id": 536870916,
+        "target.object": "alsa_output.usb-Apple__Inc._USB-C_to_3.5mm_Headphone_Jack_Adapter_SERIAL0000000001-00.analog-stereo"
+      }
+    }
+  },
+  {
+    "id": 173,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "media.class": "Stream/Input/Audio",
+        "media.name": "loopback-3044-13 input",
+        "node.autoconnect": true,
+        "node.description": "loopback-3044-13",
+        "node.group": "loopback-536870916",
+        "node.link-group": "loopback-3044-13",
+        "node.name": "input.loopback-3044-13",
+        "object.serial": 234,
+        "pulse.module.id": 536870916,
+        "target.object": "alsa_input.usb-0c76_USB_PnP_Audio_Device-00.analog-stereo"
+      }
+    }
+  },
+  {
+    "id": 170,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 172,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 174,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 172,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 175,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 172,
+      "output-port-id": 170,
+      "input-node-id": 81,
+      "input-port-id": 83,
+      "props": {}
+    }
+  },
+  {
+    "id": 176,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 172,
+      "output-port-id": 174,
+      "input-node-id": 81,
+      "input-port-id": 84,
+      "props": {}
+    }
+  },
+  {
+    "id": 177,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 173,
+        "port.direction": "in",
+        "port.name": "input_FL"
+      }
+    }
+  },
+  {
+    "id": 178,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 173,
+        "port.direction": "in",
+        "port.name": "input_FR"
+      }
+    }
+  },
+  {
+    "id": 179,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 173,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FL"
+      }
+    }
+  },
+  {
+    "id": 180,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 173,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FR"
+      }
+    }
+  },
+  {
+    "id": 184,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 58,
+      "output-port-id": 70,
+      "input-node-id": 173,
+      "input-port-id": 177,
+      "props": {}
+    }
+  },
+  {
+    "id": 185,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 58,
+      "output-port-id": 71,
+      "input-node-id": 173,
+      "input-port-id": 178,
+      "props": {}
+    }
+  },
+  {
+    "id": 200,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "device.id": 46,
+        "media.class": "Audio/Sink",
+        "node.description": "Radeon High Definition Audio Controller Digital Stereo (HDMI) [Monitor]",
+        "node.name": "alsa_output.pci-0000_c7_00.1.hdmi-stereo",
+        "node.nick": "Monitor",
+        "object.serial": 8398
+      }
+    }
+  },
+  {
+    "id": 201,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 200,
+        "port.direction": "in",
+        "port.name": "playback_FL"
+      }
+    }
+  },
+  {
+    "id": 187,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "input",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 200,
+        "port.direction": "in",
+        "port.name": "playback_FR"
+      }
+    }
+  },
+  {
+    "id": 197,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 200,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FL"
+      }
+    }
+  },
+  {
+    "id": 188,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 200,
+        "port.direction": "out",
+        "port.monitor": true,
+        "port.name": "monitor_FR"
+      }
+    }
+  },
+  {
+    "id": 64,
+    "type": "PipeWire:Interface:Node",
+    "info": {
+      "props": {
+        "application.name": "Google Chrome",
+        "media.class": "Stream/Output/Audio",
+        "media.name": "Playback",
+        "node.autoconnect": true,
+        "node.name": "Google Chrome",
+        "object.serial": 8664
+      }
+    }
+  },
+  {
+    "id": 204,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FL",
+        "node.id": 64,
+        "port.direction": "out",
+        "port.name": "output_FL"
+      }
+    }
+  },
+  {
+    "id": 202,
+    "type": "PipeWire:Interface:Port",
+    "info": {
+      "direction": "output",
+      "props": {
+        "audio.channel": "FR",
+        "node.id": 64,
+        "port.direction": "out",
+        "port.name": "output_FR"
+      }
+    }
+  },
+  {
+    "id": 182,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 64,
+      "output-port-id": 204,
+      "input-node-id": 81,
+      "input-port-id": 83,
+      "props": {}
+    }
+  },
+  {
+    "id": 183,
+    "type": "PipeWire:Interface:Link",
+    "info": {
+      "output-node-id": 64,
+      "output-port-id": 202,
+      "input-node-id": 81,
+      "input-port-id": 84,
+      "props": {}
+    }
+  }
+]
